@@ -429,6 +429,10 @@ impl Painter {
                     return vsync_sec;
                 }
                 SurfaceErrorAction::SkipFrame => {
+                    // Poll to make sure resource cleanup still happens as we do not encode any commands.
+                    if let Err(error) = render_state.device.poll(wgpu::PollType::Poll) {
+                        log::warn!("Polling the device failed: {error}");
+                    }
                     return vsync_sec;
                 }
             },
